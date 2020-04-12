@@ -1,37 +1,43 @@
 ﻿using System;
 using System.Windows.Forms;
-using Competitions.Entities;
 
 namespace Competitions
 {
     public partial class MainForm : Form
     {
-        private readonly Session _session;
+        public static readonly Session Session = new Session(Properties.Settings.Default.SqlConnection);
         public MainForm()
         {
             InitializeComponent();
 
-            _session = new Session(Properties.Settings.Default.SqlConnection);
+            comboBox_Employees.Items.AddRange(Session.Employees.GetAll());
         }
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            _session.Dispose();
+            Session.Dispose();
         }
 
         private void MainForm_Load(object sender, System.EventArgs e)
         {
-            var competitions = _session.Competitions.GetAll();
-            var competitionsResults = _session.CompetitionsResults.GetAll();
-            var conductsCompetitions = _session.ConductsCompetitions.GetAll();
-            var disciplines = _session.Disciplines.GetAll();
-            var employees = _session.Employees.GetAll();
-            var members = _session.Members.GetAll();
-            var roles = _session.Roles.GetAll();
-            var sportTypes = _session.SportTypes.GetAll();
-            var sportTypesCompetitions = _session.SportTypesCompetitions.GetAll();
-            var sportTypesDisciplines = _session.SportTypesDisciplines.GetAll();
-            var unitTypes = _session.UnitTypes.GetAll();
+            var competitions = Session.Competitions.GetAll();
+            var competitionsResults = Session.CompetitionsResults.GetAll();
+            var conductsCompetitions = Session.ConductsCompetitions.GetAll();
+            var disciplines = Session.Disciplines.GetAll();
+            var xs = Session.Employees.GetAll();
+            var members = Session.Members.GetAll();
+            var roles = Session.Roles.GetAll();
+            var sportTypes = Session.SportTypes.GetAll();
+            var sportTypesCompetitions = Session.SportTypesCompetitions.GetAll();
+            var sportTypesDisciplines = Session.SportTypesDisciplines.GetAll();
+            var unitTypes = Session.UnitTypes.GetAll();
+        }
+
+        private void button_Add_Click(object sender, EventArgs e)
+        {
+            object entity = comboBox_Employees.SelectedItem;
+            var entityEditForm = new EditForm("Редактирование сотрудника", entity, Session);
+            entityEditForm.ShowDialog();
         }
     }
 }

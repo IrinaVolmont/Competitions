@@ -8,7 +8,7 @@ namespace Competitions.Clients
     {
         public const string SQLITE_DATE_FORMAT = "yyyy-MM-dd";
 
-        protected readonly Session Session;
+        protected Session Session { get; set; }
         public ClientBase(Session session)
         {
             Session = session;

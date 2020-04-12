@@ -7,5 +7,9 @@
     public class Role
     {
         public RolePrimaryKey PrimaryKey { get; set; }
+        public override string ToString()
+        {
+            return PrimaryKey.Name;
+        }
     }
 }
