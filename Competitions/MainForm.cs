@@ -24,7 +24,7 @@ namespace Competitions
             var competitionsResults = Session.CompetitionsResults.GetAll();
             var conductsCompetitions = Session.ConductsCompetitions.GetAll();
             var disciplines = Session.Disciplines.GetAll();
-            var xs = Session.Employees.GetAll();
+            var employees = Session.Employees.GetAll();
             var members = Session.Members.GetAll();
             var roles = Session.Roles.GetAll();
             var sportTypes = Session.SportTypes.GetAll();

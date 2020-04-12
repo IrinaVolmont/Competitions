@@ -16,7 +16,9 @@ namespace Competitions.Clients
             {
                 ID = (long)reader["ID"],
                 ConductCompetition = Session.ConductsCompetitions.GetItem((long)reader["ConductCompetition"]),
-                Evaluation = (long)reader["Оценка"]
+                Evaluation = (long)reader["Evaluation"],
+                Member = Session.Members.GetItem((long)reader["Member"]),
+                TryNumber = (long)reader["TryNumber"]
             };
         }
     }

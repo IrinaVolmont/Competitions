@@ -14,7 +14,7 @@ namespace Competitions.Clients
             return new UnitType()
             {
                 ID = (long)reader["ID"],
-                Name = (string)reader["Название"]
+                Name = (string)reader["Name"]
             };
         }
     }

@@ -15,7 +15,7 @@ namespace Competitions.Clients
             return new Member()
             {
                 ID = (long)reader["ID"],
-                FullName = (string)reader["FillName"],
+                FullName = (string)reader["FullName"],
                 DateOfBirth = (DateTime)reader["DateOfBirth"]
             };
         }
