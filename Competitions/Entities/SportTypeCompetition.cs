@@ -1,15 +1,10 @@
 ﻿namespace Competitions.Entities
 {
-    public struct SportTypeCompetitionPrimaryKey
+    public class SportTypeCompetition : EntityBase
     {
         public Competition Competition { get; set; }
+        public SportTypeDiscipline SportTypeDiscipline { get; set; }
 
-        public SportType SportType { get; set; }
-
-        public Discipline Discipline { get; set; }
-    }
-    public class SportTypeCompetition
-    {
-        public SportTypeCompetitionPrimaryKey PrimaryKey { get; set; }
+        
     }
 }

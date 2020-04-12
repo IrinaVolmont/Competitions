@@ -1,11 +1,14 @@
 ﻿namespace Competitions.Entities
 {
-    public struct UnitTypePrimaryKey
+    public class UnitType : EntityBase
     {
         public string Name { get; set; }
-    }
-    public class UnitType
-    {
-        public UnitTypePrimaryKey PrimaryKey { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
+
+        
     }
 }

@@ -97,7 +97,7 @@ namespace Competitions
 
             if (value is Role role)
             {
-                return role.PrimaryKey.Name;
+                return role.Name;
             }
 
             return base.ConvertTo(context, culture, value, destinationType);
@@ -108,7 +108,7 @@ namespace Competitions
         {
             if (context?.PropertyDescriptor?.PropertyType == typeof(Role))
             {
-                return _session.Roles.GetAll().First(x => x.PrimaryKey.Name.Equals(value.ToString()));
+                return _session.Roles.GetAll().First(x => x.Name.Equals(value.ToString()));
             }
 
             return base.ConvertFrom(context, culture, value);

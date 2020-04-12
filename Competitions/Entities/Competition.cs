@@ -1,11 +1,13 @@
 ﻿namespace Competitions.Entities
 {
-    public struct CompetitionPrimaryKey
+    public class Competition : EntityBase
     {
         public string Name { get; set; }
-    }
-    public class Competition
-    {
-        public CompetitionPrimaryKey PrimaryKey { get; set; }
+        public override string ToString()
+        {
+            return Name;
+        }
+
+        
     }
 }

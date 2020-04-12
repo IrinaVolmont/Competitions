@@ -2,14 +2,15 @@
 
 namespace Competitions.Entities
 {
-    public struct MemberPrimaryKey
+    public class Member : EntityBase
     {
-        public long ID { get; set; }
-    }
-    public class Member
-    {
-        public MemberPrimaryKey PrimaryKey { get; set; }
         public string FullName { get; set; }
         public DateTime DateOfBirth { get; set; }
+        public override string ToString()
+        {
+            return FullName;
+        }
+
+        
     }
 }

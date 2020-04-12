@@ -1,17 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SQLite;
+using Competitions.Entities;
 
 namespace Competitions.Clients
 {
-    public abstract class ClientBase<T, K>
+    public abstract class ClientBase<T> where T : EntityBase
     {
-        public const string SQLITE_DATE_FORMAT = "yyyy-MM-dd";
+
+        /// <summary>
+        /// Table name in database
+        /// </summary>
+        public abstract string TableName { get; protected set; }
+
+        protected SQLiteQueryBuilder QueryBuilder;
 
         protected Session Session { get; set; }
         public ClientBase(Session session)
         {
             Session = session;
+            QueryBuilder = new SQLiteQueryBuilder(TableName);
         }
 
         /// <summary>
@@ -40,7 +47,8 @@ namespace Competitions.Clients
         /// </summary>
         /// <typeparam name="T">entity type</typeparam>
         /// <returns>all items</returns>
-        public abstract T[] GetAll();
+        public virtual T[] GetAll() => GetAll(QueryBuilder.BuildSelect());
+
         protected virtual T[] GetAll(string selectQuery)
         {
             var entities = new List<T>();
@@ -51,33 +59,41 @@ namespace Competitions.Clients
             }
             return entities.ToArray();
         }
+
         /// <summary>
         /// Get entity by key
         /// </summary>
         /// <typeparam name="T">entity type</typeparam>
         /// <typeparam name="K">key to get entity</typeparam>
         /// <returns>item</returns>
-        public abstract T GetItem(K key);
-        protected virtual T GetItem(string selectQuery)
+        public virtual T GetItem(long id)
         {
-            var reader = ExecuteSqlQuery(selectQuery);
+            var querySelect = QueryBuilder.BuildSelect(id);
+            var reader = ExecuteSqlQuery(querySelect);
             if (reader.Read())
                 return ReadEntity(reader);
             return default(T);
         }
+
         /// <summary>
         /// Add entity
         /// </summary>
         /// <typeparam name="T">entity type</typeparam>
         /// <param name="entity">entity to add</param>
-        public abstract void Add(T entity);
+        public virtual void Add(T entity)
+        {
+            var queryInsert = QueryBuilder.BuildInsert(entity);
+            Add(queryInsert);
+        }
         protected virtual void Add(string insertQuery) => ExecuteSqlQuery(insertQuery);
+
         /// <summary>
         /// Delete entity by key
         /// </summary>
         /// <typeparam name="T">entity type</typeparam>
         /// <param name="key">key to delete</param>
-        public abstract void Delete(K key);
+        public virtual void Delete(long id) => Delete(QueryBuilder.BuildDelete(id));
+
         protected virtual void Delete(string deleteQuery) => ExecuteSqlQuery(deleteQuery);
 
         /// <summary>
@@ -92,9 +108,9 @@ namespace Competitions.Clients
         /// </summary>
         /// <param name="key">entity key to delete</param>
         /// <param name="entity">entity to add</param>
-        public virtual void Edit(K key, T entity)
+        public virtual void Edit(T entity)
         {
-            Delete(key);
+            Delete(entity.ID);
             Add(entity);
         }
     }
