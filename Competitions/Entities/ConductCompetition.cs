@@ -6,7 +6,5 @@ namespace Competitions.Entities
     {
         public SportTypeCompetition SportTypeCompetition { get; set; }
         public DateTime DateTime { get; set; }
-
-        
     }
 }

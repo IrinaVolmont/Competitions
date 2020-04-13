@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using Competitions.Entities;
 
 namespace Competitions
 {
@@ -31,6 +32,14 @@ namespace Competitions
             var sportTypesCompetitions = Session.SportTypesCompetitions.GetAll();
             var sportTypesDisciplines = Session.SportTypesDisciplines.GetAll();
             var unitTypes = Session.UnitTypes.GetAll();
+
+            var newEmployee = new Employee()
+            {
+                FullName = "Тест Тестер Тестович",
+                Login = "tester",
+                Role = Session.Roles.GetItem(1)
+            };
+            Session.Employees.Add(ref newEmployee);
         }
 
         private void button_Add_Click(object sender, EventArgs e)

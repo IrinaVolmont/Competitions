@@ -110,7 +110,6 @@
     <Compile Include="Entities\SportTypeCompetition.cs" />
     <Compile Include="Entities\SportTypeDiscipline.cs" />
     <Compile Include="Entities\UnitType.cs" />
-    <Compile Include="Exceptions\EntityNotFoundException.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -4,7 +4,5 @@
     {
         public SportType SportType { get; set; }
         public Discipline Discipline { get; set; }
-
-        
     }
 }

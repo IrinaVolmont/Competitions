@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using Competitions.Entities;
 
@@ -15,6 +16,7 @@ namespace Competitions
         private Dictionary<Type, string> databaseTypesFormat = new Dictionary<Type, string>()
         {
             { typeof(Int64), "{0}"}, //INTEGER
+            { typeof(Int64?), "{0}"}, //INTEGER nullable
             { typeof(string), "'{0}'"}, //TEXT
             { typeof(DateTime), "'{0:yyyy-MM-dd}'"}, //DATETIME
         };
@@ -26,9 +28,24 @@ namespace Competitions
             var columns = string.Join(", ", properties.Keys);
 
             //values
-            var values = string.Join(", ", properties.Values.Select(type =>
+            var values = string.Join(", ", properties.Values.Select(objectValueType =>
             {
-                return string.Format(databaseTypesFormat[type.Type], type.Value);
+                string format;
+                var value = objectValueType.Value;
+                if (value is EntityBase entityBase)
+                {
+                    if (!entityBase.ID.HasValue)
+                    {
+                        throw new MissingPrimaryKeyException();
+                    }
+                    value = entityBase.ID.Value;
+                    format = "{0}";
+                }
+                else
+                {
+                    format = databaseTypesFormat[objectValueType.Type];
+                }
+                return string.Format(format, value);
             }));
 
             string query = $"INSERT INTO {_tableName} ({columns}) VALUES ({values});";
@@ -36,11 +53,20 @@ namespace Competitions
         }
         public string BuildDelete(long id) => $"DELETE FROM {_tableName} WHERE ID = {id};";
 
-        public string BuildDelete(EntityBase entity) => BuildDelete(entity.ID);
+        public string BuildDelete(EntityBase entity)
+        {
+            if (!entity.ID.HasValue)
+            {
+                throw new MissingPrimaryKeyException();
+            }
+            return BuildDelete(entity.ID.Value);
+        }
 
         public string BuildSelect() => $"SELECT * FROM {_tableName}";
 
-        public string BuildSelect(long id) => $"SELECT * FROM {_tableName} WHERE ID = {id}";
+        public string BuildSelect(long id) => $"SELECT * FROM {_tableName} WHERE ID = {id};";
+
+        public string BuildSelectSequence() => $"SELECT seq FROM sqlite_sequence WHERE name = '{_tableName}';";
 
         private Dictionary<string, ObjectValueType> ReadProperties(EntityBase entity)
         {

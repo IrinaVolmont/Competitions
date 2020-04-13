@@ -10,7 +10,5 @@ namespace Competitions.Entities
         {
             return FullName;
         }
-
-        
     }
 }

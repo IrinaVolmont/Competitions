@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using System.Data.SQLite;
 using Competitions.Entities;
 
@@ -68,24 +69,29 @@ namespace Competitions.Clients
         /// <returns>item</returns>
         public virtual T GetItem(long id)
         {
-            var querySelect = QueryBuilder.BuildSelect(id);
-            var reader = ExecuteSqlQuery(querySelect);
+            var selectQuery = QueryBuilder.BuildSelect(id);
+            var reader = ExecuteSqlQuery(selectQuery);
             if (reader.Read())
                 return ReadEntity(reader);
             return default(T);
         }
 
         /// <summary>
-        /// Add entity
+        /// Set ID and add entity
         /// </summary>
         /// <typeparam name="T">entity type</typeparam>
         /// <param name="entity">entity to add</param>
-        public virtual void Add(T entity)
+        public virtual void Add(ref T entity)
         {
+            //get new id
+            var querySequence = QueryBuilder.BuildSelectSequence();
+            var reader = ExecuteSqlQuery(querySequence);
+            reader.Read();
+            entity.ID = ((long)reader["seq"]) + 1;
+
             var queryInsert = QueryBuilder.BuildInsert(entity);
-            Add(queryInsert);
+            ExecuteSqlQuery(queryInsert);
         }
-        protected virtual void Add(string insertQuery) => ExecuteSqlQuery(insertQuery);
 
         /// <summary>
         /// Delete entity by key
@@ -110,8 +116,12 @@ namespace Competitions.Clients
         /// <param name="entity">entity to add</param>
         public virtual void Edit(T entity)
         {
-            Delete(entity.ID);
-            Add(entity);
+            if (!entity.ID.HasValue)
+            {
+                throw new MissingPrimaryKeyException();
+            }
+            Delete(entity.ID.Value);
+            Add(ref entity);
         }
     }
 }

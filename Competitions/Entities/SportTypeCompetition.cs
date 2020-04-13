@@ -4,7 +4,5 @@
     {
         public Competition Competition { get; set; }
         public SportTypeDiscipline SportTypeDiscipline { get; set; }
-
-        
     }
 }

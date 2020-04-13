@@ -1,8 +1,11 @@
-﻿namespace Competitions.Entities
+﻿using System.ComponentModel;
+
+namespace Competitions.Entities
 {
     public abstract class EntityBase
     {
-        public long ID { get; set; }
+        [Browsable(false)]
+        public long? ID { get; set; }
 
         public override int GetHashCode()
         {
