@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Linq;
 using Competitions.Entities;
 
 namespace Competitions.Clients
@@ -12,10 +14,11 @@ namespace Competitions.Clients
         /// Table name in database
         /// </summary>
         public abstract string TableName { get; protected set; }
+        public abstract string DisplayName { get; protected set; }
 
         protected SQLiteQueryBuilder QueryBuilder;
 
-        protected Session Session { get; set; }
+        public Session Session { get; private set; }
         public ClientBase(Session session)
         {
             Session = session;
@@ -46,12 +49,16 @@ namespace Competitions.Clients
         /// <summary>
         /// Get all entities
         /// </summary>
-        /// <typeparam name="T">entity type</typeparam>
-        /// <returns>all items</returns>
-        public virtual T[] GetAll() => GetAll(QueryBuilder.BuildSelect());
-
-        protected virtual T[] GetAll(string selectQuery)
+        /// <param name="ignoreAccessRights">Ignore access rights</param>
+        /// <returns>All entities</returns>
+        public virtual T[] GetAll(bool ignoreAccessRights = false)
         {
+            if (!ignoreAccessRights && !CheckAccess(AccessMethodNames.Get))
+            {
+                throw new UnauthorizedAccessException();
+            }
+
+            var selectQuery = QueryBuilder.BuildSelect();
             var entities = new List<T>();
             var reader = ExecuteSqlQuery(selectQuery);
             while (reader.Read())
@@ -64,11 +71,15 @@ namespace Competitions.Clients
         /// <summary>
         /// Get entity by key
         /// </summary>
-        /// <typeparam name="T">entity type</typeparam>
-        /// <typeparam name="K">key to get entity</typeparam>
+        /// <typeparam name="id">ID</typeparam>
+        /// <param name="ignoreAccessRights">Ignore access rights</param>
         /// <returns>item</returns>
-        public virtual T GetItem(long id)
+        public virtual T GetItem(long id, bool ignoreAccessRights = false)
         {
+            if (!ignoreAccessRights && !CheckAccess(AccessMethodNames.Get))
+            {
+                throw new UnauthorizedAccessException();
+            }
             var selectQuery = QueryBuilder.BuildSelect(id);
             var reader = ExecuteSqlQuery(selectQuery);
             if (reader.Read())
@@ -79,10 +90,15 @@ namespace Competitions.Clients
         /// <summary>
         /// Set ID and add entity
         /// </summary>
-        /// <typeparam name="T">entity type</typeparam>
         /// <param name="entity">entity to add</param>
-        public virtual void Add(ref T entity)
+        /// <param name="ignoreAccessRights">Ignore access rights</param>
+        public virtual void Add(ref T entity, bool ignoreAccessRights = false)
         {
+            if (!ignoreAccessRights && !CheckAccess(AccessMethodNames.Add))
+            {
+                throw new UnauthorizedAccessException();
+            }
+
             //get new id
             var querySequence = QueryBuilder.BuildSelectSequence();
             var reader = ExecuteSqlQuery(querySequence);
@@ -96,11 +112,32 @@ namespace Competitions.Clients
         /// <summary>
         /// Delete entity by key
         /// </summary>
-        /// <typeparam name="T">entity type</typeparam>
-        /// <param name="key">key to delete</param>
-        public virtual void Delete(long id) => Delete(QueryBuilder.BuildDelete(id));
+        /// <param name="id"></param>
+        /// <param name="ignoreAccessRights">Ignore access rights</param>
+        public virtual void Delete(long id, bool ignoreAccessRights = false)
+        {
+            if (!ignoreAccessRights && !CheckAccess(AccessMethodNames.Delete))
+            {
+                throw new UnauthorizedAccessException();
+            }
+            var deleteQuery = QueryBuilder.BuildDelete(id);
+            ExecuteSqlQuery(deleteQuery);
+        }
 
-        protected virtual void Delete(string deleteQuery) => ExecuteSqlQuery(deleteQuery);
+        /// <summary>
+        /// Delete and add entity
+        /// </summary>
+        /// <param name="ignoreAccessRights">Ignore access rights</param>
+        /// <param name="entity">entity to add</param>
+        public virtual void Edit(T entity, bool ignoreAccessRights = false)
+        {
+            if (!entity.ID.HasValue)
+            {
+                throw new MissingPrimaryKeyException();
+            }
+            Delete(entity.ID.Value, ignoreAccessRights);
+            Add(ref entity, ignoreAccessRights);
+        }
 
         /// <summary>
         /// Read entity by query. Execute reader.Read() before calling
@@ -110,18 +147,36 @@ namespace Competitions.Clients
         protected abstract T ReadEntity(SQLiteDataReader reader);
 
         /// <summary>
-        /// Delete and add entity
+        /// Check access by AccessRight table
         /// </summary>
-        /// <param name="key">entity key to delete</param>
-        /// <param name="entity">entity to add</param>
-        public virtual void Edit(T entity)
+        /// <param name="accessMethodName">Method type for check: "Get", "Add" or "Delete"</param>
+        /// <returns></returns>
+        public bool CheckAccess(AccessMethodNames accessMethodName)
         {
-            if (!entity.ID.HasValue)
+            var allAccessRights = Session.AccessRights.GetAll(true);
+            var accessRight = allAccessRights.FirstOrDefault(x => x.Role?.ID == Session.CurrentEmployee?.Role?.ID && x.TableName.Equals(TableName));
+            bool isAccess = false;
+            if (accessRight != null)
             {
-                throw new MissingPrimaryKeyException();
+                switch (accessMethodName)
+                {
+                    case AccessMethodNames.Add:
+                        isAccess = accessRight.Add;
+                        break;
+                    case AccessMethodNames.Get:
+                        isAccess = accessRight.Get;
+                        break;
+                    case AccessMethodNames.Delete:
+                        isAccess = accessRight.Delete;
+                        break;
+                    default:
+                        isAccess = false;
+                        break;
+                }
             }
-            Delete(entity.ID.Value);
-            Add(ref entity);
+
+            return isAccess;
         }
     }
+    public enum AccessMethodNames { Get, Add, Delete }
 }

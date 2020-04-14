@@ -19,6 +19,9 @@ namespace Competitions
             { typeof(Int64?), "{0}"}, //INTEGER nullable
             { typeof(string), "'{0}'"}, //TEXT
             { typeof(DateTime), "'{0:yyyy-MM-dd}'"}, //DATETIME
+            { typeof(DateTime?), "'{0:yyyy-MM-dd}'"}, //DATETIME nullable
+            { typeof(Boolean), "{0}" }, //BOOLEAN
+            { typeof(Boolean?), "{0}" } //BOOLEAN
         };
         public string BuildInsert(EntityBase entity)
         {
@@ -32,18 +35,25 @@ namespace Competitions
             {
                 string format;
                 var value = objectValueType.Value;
-                if (value is EntityBase entityBase)
+                if (value is EntityBase entityBase) //if(objectValueType.Type.IsSubclassOf(typeof(EntityBase)))
                 {
                     if (!entityBase.ID.HasValue)
                     {
-                        throw new MissingPrimaryKeyException();
+                        throw new MissingPrimaryKeyException(entityBase.GetPropertiesInfo());
                     }
                     value = entityBase.ID.Value;
                     format = "{0}";
                 }
                 else
                 {
-                    format = databaseTypesFormat[objectValueType.Type];
+                    if (databaseTypesFormat.ContainsKey(objectValueType.Type))
+                    {
+                        format = databaseTypesFormat[objectValueType.Type];
+                    }
+                    else
+                    {
+                        format = "NULL";
+                    }
                 }
                 return string.Format(format, value);
             }));
@@ -57,7 +67,7 @@ namespace Competitions
         {
             if (!entity.ID.HasValue)
             {
-                throw new MissingPrimaryKeyException();
+                throw new MissingPrimaryKeyException(entity.GetPropertiesInfo());
             }
             return BuildDelete(entity.ID.Value);
         }

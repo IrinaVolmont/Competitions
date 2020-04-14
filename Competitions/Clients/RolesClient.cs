@@ -8,6 +8,7 @@ namespace Competitions.Clients
         public RolesClient(Session session) : base(session) { }
 
         public override string TableName { get; protected set; } = "Role";
+        public override string DisplayName { get; protected set; } = "Должности";
 
         protected override Role ReadEntity(SQLiteDataReader reader)
         {

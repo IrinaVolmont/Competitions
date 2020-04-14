@@ -6,6 +6,9 @@ namespace Competitions.Entities
     {
         public string Login { get; set; }
 
+        [Browsable(false)]
+        public string CryptedPassword { get; set; }
+
         public string FullName { get; set; }
 
         [TypeConverter(typeof(EnumerableConverter))]

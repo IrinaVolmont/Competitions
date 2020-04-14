@@ -1,4 +1,6 @@
-﻿namespace Competitions.Entities
+﻿using System.ComponentModel;
+
+namespace Competitions.Entities
 {
     public class Role : EntityBase
     {

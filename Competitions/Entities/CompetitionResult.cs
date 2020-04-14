@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Competitions.Entities
+﻿namespace Competitions.Entities
 {
     public class CompetitionResult : EntityBase
     {

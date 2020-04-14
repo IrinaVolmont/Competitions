@@ -9,6 +9,7 @@ namespace Competitions.Clients
         public MembersClient(Session session) : base(session) { }
 
         public override string TableName { get; protected set; } = "Member";
+        public override string DisplayName { get; protected set; } = "Участники";
 
         protected override Member ReadEntity(SQLiteDataReader reader)
         {

@@ -4,6 +4,7 @@ using System.Data.SQLite;
 using System.Linq;
 using Competitions.Clients;
 using Competitions.Entities;
+using Competitions.UI;
 
 namespace Competitions
 {
@@ -22,6 +23,38 @@ namespace Competitions
         public readonly CompetitionsResultsClient CompetitionsResults;
         public readonly SportTypesCompetitionsClient SportTypesCompetitions;
         public readonly ConductsCompetitionsClient ConductsCompetitions;
+        public readonly AccessRightsClient AccessRights;
+
+        private Employee _currentEmployee;
+
+        public Employee CurrentEmployee
+        {
+            get { return _currentEmployee?.ID == null ? null : Employees.GetItem(_currentEmployee.ID.Value, true); }
+            private set { _currentEmployee = value; }
+        }
+
+        public bool Authorize(string login, string password)
+        {
+            var cryptedPassword = MD5Ext.GetMd5Hash(password);
+            try
+            {
+                CurrentEmployee = Employees.GetAll(true).FirstOrDefault(x => x.Login.Equals(login));
+            }
+            catch { } //авторизация не удалась, достаточно вернуть false
+
+            if (string.IsNullOrEmpty(CurrentEmployee.CryptedPassword))
+            {
+                CurrentEmployee.CryptedPassword = cryptedPassword;
+                this.Employees.Edit(CurrentEmployee);
+            }
+
+            return CurrentEmployee != null && CurrentEmployee.CryptedPassword == cryptedPassword;
+        }
+
+        public void DeAuthorize()
+        {
+            CurrentEmployee = null;
+        }
 
         public Session(string connectionString)
         {
@@ -39,6 +72,7 @@ namespace Competitions
             CompetitionsResults = new CompetitionsResultsClient(this);
             SportTypesCompetitions = new SportTypesCompetitionsClient(this);
             ConductsCompetitions = new ConductsCompetitionsClient(this);
+            AccessRights = new AccessRightsClient(this);
         }
         public void Dispose()
         {

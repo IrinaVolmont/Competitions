@@ -8,6 +8,7 @@ namespace Competitions.Clients
         public UnitTypesClient(Session session) : base(session) { }
 
         public override string TableName { get; protected set; } = "UnitType";
+        public override string DisplayName { get; protected set; } = "Единицы оценивания";
 
         protected override UnitType ReadEntity(SQLiteDataReader reader)
         {

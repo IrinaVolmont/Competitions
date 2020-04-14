@@ -9,6 +9,7 @@ namespace Competitions.Clients
         public ConductsCompetitionsClient(Session session) : base(session) { }
 
         public override string TableName { get; protected set; } = "ConductCompetition";
+        public override string DisplayName { get; protected set; } = "Проведение соревнований";
 
         protected override ConductCompetition ReadEntity(SQLiteDataReader reader)
         {
@@ -16,7 +17,7 @@ namespace Competitions.Clients
             {
                 ID = (long)reader["ID"],
                 DateTime = (DateTime)reader["DateTime"],
-                SportTypeCompetition = Session.SportTypesCompetitions.GetItem((long)reader["SportTypeCompetition"])
+                SportTypeCompetition = Session.SportTypesCompetitions.GetItem((long)reader["SportTypeCompetition"], true)
             };
         }
     }

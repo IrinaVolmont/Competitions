@@ -8,6 +8,7 @@ namespace Competitions.Clients
         public CompetitionsClient(Session session) : base(session) { }
 
         public override string TableName { get; protected set; } = "Competition";
+        public override string DisplayName { get; protected set; } = "Типы соревнований";
 
         protected override Competition ReadEntity(SQLiteDataReader reader)
         {

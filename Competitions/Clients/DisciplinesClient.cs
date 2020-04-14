@@ -8,6 +8,7 @@ namespace Competitions.Clients
         public DisciplinesClient(Session session) : base(session) { }
 
         public override string TableName { get; protected set; } = "Discipline";
+        public override string DisplayName { get; protected set; } = "Дисциплины";
 
         protected override Discipline ReadEntity(SQLiteDataReader reader)
         {
@@ -15,7 +16,7 @@ namespace Competitions.Clients
             {
                 ID = (long)reader["ID"],
                 Name = (string)reader["Name"],
-                UnitType = Session.UnitTypes.GetItem((long)reader["UnitType"])
+                UnitType = Session.UnitTypes.GetItem((long)reader["UnitType"], true)
             };
         }
     }

@@ -1,4 +1,4 @@
-﻿namespace Competitions
+﻿namespace Competitions.UI
 {
     partial class EditForm
     {
@@ -65,6 +65,7 @@
             this.Name = "EditForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "EditForm";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.EditForm_FormClosed);
             this.ResumeLayout(false);
 
         }
