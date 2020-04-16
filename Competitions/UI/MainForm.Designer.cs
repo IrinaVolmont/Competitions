@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.comboBox_Employees = new System.Windows.Forms.ComboBox();
             this.button_EmployeeAdd = new System.Windows.Forms.Button();
             this.button_EmployeeEdit = new System.Windows.Forms.Button();
@@ -254,6 +255,7 @@
             this.Controls.Add(this.panel_CompetitionsResults);
             this.Controls.Add(this.groupBox_Employees);
             this.Controls.Add(this.menuStrip);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
             this.MinimumSize = new System.Drawing.Size(1500, 800);
             this.Name = "MainForm";

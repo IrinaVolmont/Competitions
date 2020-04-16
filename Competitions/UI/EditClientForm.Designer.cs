@@ -1,4 +1,6 @@
-﻿namespace Competitions.UI
+﻿using Competitions.Entities;
+
+namespace Competitions.UI
 {
     partial class EditClientForm<T>
     {
