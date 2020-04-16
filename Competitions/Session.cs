@@ -25,6 +25,37 @@ namespace Competitions
         public readonly ConductsCompetitionsClient ConductsCompetitions;
         public readonly AccessRightsClient AccessRights;
 
+        public IClientBase<EntityBase> GetClient<T>() where T : EntityBase => GetClient(typeof(T));
+        public IClientBase<EntityBase> GetClient(Type type)
+        {
+            if (type == typeof(Member))
+                return Members;
+            if (type == typeof(Role))
+                return Roles;
+            if (type == typeof(Employee))
+                return Employees;
+            if (type == typeof(UnitType))
+                return UnitTypes;
+            if (type == typeof(Discipline))
+                return Disciplines;
+            if (type == typeof(SportType))
+                return SportTypes;
+            if (type == typeof(SportTypeDiscipline))
+                return SportTypesDisciplines;
+            if (type == typeof(Competition))
+                return Competitions;
+            if (type == typeof(CompetitionResult))
+                return CompetitionsResults;
+            if (type == typeof(SportTypeCompetition))
+                return SportTypesCompetitions;
+            if (type == typeof(ConductCompetition))
+                return ConductsCompetitions;
+            if (type == typeof(AccessRight))
+                return AccessRights;
+
+            return null;
+        }
+
         private Employee _currentEmployee;
 
         public Employee CurrentEmployee
@@ -44,11 +75,18 @@ namespace Competitions
 
             if (string.IsNullOrEmpty(CurrentEmployee.CryptedPassword))
             {
-                CurrentEmployee.CryptedPassword = cryptedPassword;
-                this.Employees.Edit(CurrentEmployee);
+                var currentEmployee = CurrentEmployee;
+                currentEmployee.CryptedPassword = cryptedPassword;
+                this.Employees.Edit(currentEmployee, true);
+                CurrentEmployee = currentEmployee;
             }
 
-            return CurrentEmployee != null && CurrentEmployee.CryptedPassword == cryptedPassword;
+            if (CurrentEmployee.CryptedPassword != cryptedPassword)
+            {
+                CurrentEmployee = null;
+            }
+
+            return CurrentEmployee != null;
         }
 
         public void DeAuthorize()
@@ -80,7 +118,7 @@ namespace Competitions
         }
     }
 
-    public class EnumerableConverter : ExpandableObjectConverter
+    public class EntitiesConverter : ExpandableObjectConverter
     {
         private Session _session = MainForm.Session;
 
@@ -90,14 +128,12 @@ namespace Competitions
 
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            var contextType = context.Instance.GetType();
-
-            if (contextType == typeof(Employee))
+            var client = _session.GetClient(context.PropertyDescriptor.PropertyType);
+            if (client != null)
             {
-                var allRoles = _session.Roles.GetAll();
-                return new StandardValuesCollection(allRoles);
+                var allEntities = client.GetAll();
+                return new StandardValuesCollection(allEntities);
             }
-
             return null;
         }
 
@@ -122,16 +158,11 @@ namespace Competitions
         }
 
         public override object ConvertTo(ITypeDescriptorContext context,
-        System.Globalization.CultureInfo culture, object value, Type destinationType)
+            System.Globalization.CultureInfo culture, object value, Type destinationType)
         {
-            if (destinationType != typeof(string))
+            if (value is EntityBase entityBase)
             {
-                return base.ConvertTo(context, culture, value, destinationType);
-            }
-
-            if (value is Role role)
-            {
-                return role.Name;
+                return entityBase.ToString();
             }
 
             return base.ConvertTo(context, culture, value, destinationType);
@@ -140,12 +171,20 @@ namespace Competitions
         public override object ConvertFrom(ITypeDescriptorContext context,
             System.Globalization.CultureInfo culture, object value)
         {
-            if (context?.PropertyDescriptor?.PropertyType == typeof(Role))
+            if (context?.PropertyDescriptor?.PropertyType != null)
             {
-                return _session.Roles.GetAll().First(x => x.Name.Equals(value.ToString()));
+                var client = _session.GetClient(context?.PropertyDescriptor?.PropertyType);
+                if (client != null)
+                {
+                    var allEntities = client.GetAll();
+                    var foundObj = allEntities.FirstOrDefault(x => x.ToString().Equals(value?.ToString()));
+                    if (foundObj != null)
+                    {
+                        return foundObj;
+                    }
+                }
             }
-
-            return base.ConvertFrom(context, culture, value);
+                return base.ConvertFrom(context, culture, value);
         }
     }
 }

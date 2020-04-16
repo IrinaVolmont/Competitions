@@ -7,7 +7,18 @@ using Competitions.Entities;
 
 namespace Competitions.Clients
 {
-    public abstract class ClientBase<T> where T : EntityBase
+    public interface IClientBase<out T> where T : EntityBase
+    {
+        string TableName { get; }
+        string DisplayName { get; }
+        T[] GetAll(bool ignoreAccessRights = false);
+        T GetItem(long id, bool ignoreAccessRights = false);
+        void Add(EntityBase entity, bool ignoreAccessRights = false);
+        void Delete(long id, bool ignoreAccessRights = false);
+        bool CheckAccess(AccessMethodNames accessMethodName);
+    }
+
+    public abstract class ClientBase<T> : IClientBase<T> where T : EntityBase
     {
 
         /// <summary>
@@ -92,7 +103,7 @@ namespace Competitions.Clients
         /// </summary>
         /// <param name="entity">entity to add</param>
         /// <param name="ignoreAccessRights">Ignore access rights</param>
-        public virtual void Add(ref T entity, bool ignoreAccessRights = false)
+        public virtual void Add(EntityBase entity, bool ignoreAccessRights = false)
         {
             if (!ignoreAccessRights && !CheckAccess(AccessMethodNames.Add))
             {
@@ -136,7 +147,7 @@ namespace Competitions.Clients
                 throw new MissingPrimaryKeyException();
             }
             Delete(entity.ID.Value, ignoreAccessRights);
-            Add(ref entity, ignoreAccessRights);
+            Add(entity, ignoreAccessRights);
         }
 
         /// <summary>

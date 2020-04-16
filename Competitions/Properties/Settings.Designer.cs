@@ -25,7 +25,7 @@ namespace Competitions.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=D:\\Projects\\Competitions\\Competitions.db; Version=3;")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=Competitions.db; Version=3;")]
         public string SqlConnection {
             get {
                 return ((string)(this["SqlConnection"]));

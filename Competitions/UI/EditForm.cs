@@ -70,5 +70,13 @@ namespace Competitions.UI
                 return true;
             }
         }
+
+        private void EditForm_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyData == Keys.Escape)
+            {
+                this.DialogResult = DialogResult.Cancel;
+            }
+        }
     }
 }

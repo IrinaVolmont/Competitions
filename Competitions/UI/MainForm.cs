@@ -10,9 +10,14 @@ namespace Competitions.UI
     public partial class MainForm : Form
     {
         public static readonly Session Session = new Session(Properties.Settings.Default.SqlConnection);
+        private EditClient<CompetitionResult> _competitionsResultsControl;
+
         public MainForm()
         {
             InitializeComponent();
+
+            _competitionsResultsControl = new EditClient<CompetitionResult>(Session.CompetitionsResults) { Dock = DockStyle.Fill };
+
             UpdateEmployees();
         }
 
@@ -24,12 +29,9 @@ namespace Competitions.UI
             string currentFullName = Session.CurrentEmployee?.FullName;
             label_CurrentUser.Text = string.IsNullOrEmpty(currentFullName) ? "не выбран" : currentFullName;
 
-
             CheckAndUpdateEmployeeButtons();
 
-
-            /*var competitionsResultsControl = new EditClient(Session.CompetitionsResults) {Dock = DockStyle.Fill};
-            panel_CompetitionsResults.Controls.Add(competitionsResultsControl);*/
+            panel_CompetitionsResults.Controls.Add(_competitionsResultsControl);
         }
         private void CheckAndUpdateEmployeeButtons()
         {
@@ -40,6 +42,20 @@ namespace Competitions.UI
             button_EmployeeEdit.Enabled = selectedEmployee != null && !selectedEmployee.Equals(Session.CurrentEmployee) && Session.Employees.CheckAccess(AccessMethodNames.Add) &&
                                           Session.Employees.CheckAccess(AccessMethodNames.Delete);
             button_EmployeeDelete.Enabled = selectedEmployee != null && !selectedEmployee.Equals(Session.CurrentEmployee) && Session.Employees.CheckAccess(AccessMethodNames.Delete);
+
+            _competitionsResultsControl.Button_Add.Enabled =
+                Session.CompetitionsResults.CheckAccess(AccessMethodNames.Add);
+
+            membersToolStripMenuItem.Enabled = Session.Members.CheckAccess(AccessMethodNames.Get);
+            conductsCompetitionsToolStripMenuItem.Enabled = Session.ConductsCompetitions.CheckAccess(AccessMethodNames.Get);
+            sportTypesCompetitionsToolStripMenuItem.Enabled = Session.SportTypesCompetitions.CheckAccess(AccessMethodNames.Get);
+            competitionsClientToolStripMenuItem.Enabled = Session.Competitions.CheckAccess(AccessMethodNames.Get);
+            sportTypesDisciplinesToolStripMenuItem.Enabled = Session.SportTypesDisciplines.CheckAccess(AccessMethodNames.Get);
+            sportTypesToolStripMenuItem.Enabled = Session.SportTypes.CheckAccess(AccessMethodNames.Get);
+            disciplinesToolStripMenuItem.Enabled = Session.Disciplines.CheckAccess(AccessMethodNames.Get);
+            unitTypesToolStripMenuItem.Enabled = Session.UnitTypes.CheckAccess(AccessMethodNames.Get);
+            accessRightsToolStripMenuItem.Enabled = Session.AccessRights.CheckAccess(AccessMethodNames.Get);
+            rolesToolStripMenuItem.Enabled = Session.Roles.CheckAccess(AccessMethodNames.Get);
         }
 
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
@@ -61,7 +77,7 @@ namespace Competitions.UI
                 var addedEmployee = entityEditForm.Entity as Employee;
                 try
                 {
-                    Session.Employees.Add(ref addedEmployee);
+                    Session.Employees.Add(addedEmployee);
                 }
                 catch (SQLiteException exception)
                 {
@@ -170,10 +186,42 @@ namespace Competitions.UI
                         MessageBox.Show($"Ошибка авторизации пользователя '{currentEmployee.Login}'", "Ошибка входа",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-
-                    UpdateEmployees();
+                    else
+                    {
+                        UpdateEmployees();
+                    }
                 }
             }
         }
+
+        private void membersToolStripMenuItem_Click(object sender, EventArgs e) =>
+            new EditClientForm<Member>(Session.Members, "Редактирование участников").ShowDialog();
+
+        private void conductsCompetitionsToolStripMenuItem_Click(object sender, EventArgs e) =>
+            new EditClientForm<ConductCompetition>(Session.ConductsCompetitions, "Редактирование проведений соревнований").ShowDialog();
+
+        private void sportTypesCompetitionsToolStripMenuItem_Click(object sender, EventArgs e) =>
+            new EditClientForm<SportTypeCompetition>(Session.SportTypesCompetitions, "Редактирование спортивных направений в соревнованиях").ShowDialog();
+
+        private void competitionsClientToolStripMenuItem_Click(object sender, EventArgs e) =>
+            new EditClientForm<Competition>(Session.Competitions, "Редактирование типов соревнований").ShowDialog();
+
+        private void sportTypesDisciplinesToolStripMenuItem_Click(object sender, EventArgs e) =>
+            new EditClientForm<SportTypeDiscipline>(Session.SportTypesDisciplines, "Редактирование дисциплин спортивных направлений").ShowDialog();
+
+        private void sportTypesToolStripMenuItem_Click(object sender, EventArgs e) =>
+            new EditClientForm<SportType>(Session.SportTypes, "Редактирование спортивных направлений").ShowDialog();
+
+        private void disciplinesToolStripMenuItem_Click(object sender, EventArgs e) =>
+            new EditClientForm<Discipline>(Session.Disciplines, "Редактирование дисциплин").ShowDialog();
+
+        private void unitTypesToolStripMenuItem_Click(object sender, EventArgs e) =>
+            new EditClientForm<UnitType>(Session.UnitTypes, "Редактирование единиц оценивания").ShowDialog();
+
+        private void accessRightsToolStripMenuItem_Click(object sender, EventArgs e) =>
+            new EditClientForm<AccessRight>(Session.AccessRights, "Редактирование прав доступа").ShowDialog();
+
+        private void rolesToolStripMenuItem_Click(object sender, EventArgs e) =>
+            new EditClientForm<Role>(Session.Roles, "Редактирование должностей").ShowDialog();
     }
 }

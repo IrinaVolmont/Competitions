@@ -39,6 +39,7 @@
             this.propertyGrid_Entity.HelpVisible = false;
             this.propertyGrid_Entity.Location = new System.Drawing.Point(12, 12);
             this.propertyGrid_Entity.Name = "propertyGrid_Entity";
+            this.propertyGrid_Entity.PropertySort = System.Windows.Forms.PropertySort.Alphabetical;
             this.propertyGrid_Entity.Size = new System.Drawing.Size(776, 390);
             this.propertyGrid_Entity.TabIndex = 0;
             // 
@@ -62,10 +63,12 @@
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.button_Save);
             this.Controls.Add(this.propertyGrid_Entity);
+            this.KeyPreview = true;
             this.Name = "EditForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "EditForm";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.EditForm_FormClosed);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.EditForm_KeyUp);
             this.ResumeLayout(false);
 
         }
